@@ -8,10 +8,10 @@ import urllib3
 urllib3.disable_warnings()
 
 # Authentication
-BASE_URL = 'https://<IP ADDRESS or FQDN>' # Example BASE_URL = 'https://sandboxdnac.cisco.com'
+BASE_URL = 'https://sandboxdnac2.cisco.com' # Example BASE_URL = 'https://sandboxdnac.cisco.com'
 AUTH_URL = '/dna/system/api/v1/auth/token'
-USERNAME = '<USERNAME>' # Example USERNAME = 'devnetuser'
-PASSWORD = '<PASSWORD>' # Example PASSWORD = 'Cisco123!'
+USERNAME = 'admin' # Example USERNAME = 'devnetuser'
+PASSWORD = 'Cisco1234!' # Example PASSWORD = 'Cisco123!'
 
 # URLs
 DEVICES_COUNT_URL = '/dna/intent/api/v1/network-device/count'

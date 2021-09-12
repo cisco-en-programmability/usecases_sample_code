@@ -1,0 +1,88 @@
+- name: Command Runner Example
+  hosts: cisco
+  gather_facts: false
+  vars:
+    dnac_host: <IP/FQDN>
+    dnac_username: <Username>
+    dnac_password: <Password>
+    dnac_verify: False
+    dnac_port: 443
+    dnac_version: 2.2.2.3
+    dnac_debug: False
+
+  tasks:
+  - name: Get all Network Device
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      hostname:
+        - C9K-Branch-SFO.clus-demo.com
+    register: list_network_devices
+
+  - name: Print list of network devices
+    debug:
+      var: list_network_devices
+
+  - name: Execute command
+    cisco.dnac.command_runner_run_command:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      commands:
+        - show version 
+        - show ip interface brief
+      deviceUuids:
+        - "{{list_network_devices.dnac_response.response[0].id}}"
+      timeout: 0
+    register: command_runner_task
+
+  - name: Sleep for 60 seconds and continue with play
+    wait_for:
+      timeout: 60
+    delegate_to: localhost
+
+  - name: Get template deployment task information
+    cisco.dnac.task_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      taskId: "{{command_runner_task.dnac_response.response.taskId}}"
+    register: task_info
+
+  - name: Print command runner progress
+    debug:
+      var: " {{task_info.dnac_response.response.progress | from_json }}"
+
+  - name: Create file variable
+    set_fact:
+      file: "{{ task_info.dnac_response.response.progress | from_json }}"
+
+  - name: Get Command Runner File
+    cisco.dnac.file_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      fileId: "{{file.fileId}}"
+    register: command_runner_file
+
+  - name: Print command runner file
+    debug:
+      var: " {{ command_runner_file.dnac_response | from_json }}"
+
