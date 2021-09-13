@@ -9,6 +9,7 @@
     dnac_port: 443
     dnac_version: 2.2.2.3
     dnac_debug: False
+    device_hostname: <HOSTNAME>
 
   tasks:
   - name: Get all Network Device
@@ -21,7 +22,7 @@
       dnac_version: "{{dnac_version}}"
       dnac_debug: "{{dnac_debug}}"
       hostname:
-        - C9K-Branch-SFO.clus-demo.com
+        - "{{device_hostname}}"
     register: list_network_devices
 
   - name: Print list of network devices
