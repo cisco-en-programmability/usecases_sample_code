@@ -1,0 +1,92 @@
+- name: Devices Example
+  hosts: cisco
+  gather_facts: false
+  vars:
+    dnac_host: <IP/FQDN>
+    dnac_username: <USERNAME>
+    dnac_password: <PASSWORD>
+    dnac_verify: False
+    dnac_port: 443
+    dnac_version: 2.2.2.3
+    dnac_debug: False
+
+  tasks:
+  - name: Get all Network Device Count
+    cisco.dnac.network_device_count_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+    register: network_device_count
+  
+  - name: Print network device count 
+    ansible.builtin.debug:
+      var: network_device_count
+
+  - name: Get all Network Devices
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+    register: network_devices_list
+
+  - name: Print network devices list
+    ansible.builtin.debug:
+      var: network_devices_list
+
+  - name: Get Network Device Filtered by Hostname
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      hostname: 
+        - "ISR-4K--Branch-SFO" # CHANGE ME
+    register: network_devices_by_hostname
+
+  - name: Print network device by hostname
+    ansible.builtin.debug:
+      var: network_devices_by_hostname
+
+  - name: Get Network Device Filtered by Platform
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      platformId: 
+        - C9300-48U # CHANGE ME
+    register: network_devices_by_platform
+
+  - name: Print network device by platform
+    ansible.builtin.debug:
+      var: network_devices_by_platform
+
+  - name: Get Network Device by ID
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      id: "{{network_devices_list.dnac_response.response[0].id}}"
+    register: network_device
+
+  - name: Print network device by id
+    ansible.builtin.debug:
+      var: network_device
