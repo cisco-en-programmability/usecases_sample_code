@@ -1,0 +1,58 @@
+- name: Health Monitoring Example
+  hosts: cisco
+  gather_facts: false
+  vars:
+    dnac_host: <IP/FQDN>
+    dnac_username: <USERNAME>
+    dnac_password: <PASSWORD>
+    dnac_verify: False
+    dnac_port: 443
+    dnac_version: 2.2.2.3
+    dnac_debug: False
+
+  tasks:
+  - name: Get all Site Health
+    cisco.dnac.site_health_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+    register: site_health
+
+  - name: Print Site Health
+    ansible.builtin.debug:
+      var: site_health
+
+  - name: Get all Topology Network Health
+    cisco.dnac.topology_network_health_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+    register: network_health
+
+  - name: Print Network Health
+    ansible.builtin.debug:
+      var: network_health
+
+  - name: Get all Client Health
+    cisco.dnac.client_health_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+    register: client_health
+
+  - name: Print Client Health
+    ansible.builtin.debug:
+      var: client_health
+
