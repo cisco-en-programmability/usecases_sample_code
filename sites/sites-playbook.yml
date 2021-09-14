@@ -1,0 +1,81 @@
+- name: Sites Example
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    dnac_host: <IP/FQDN>
+    dnac_username: <username>
+    dnac_password: <password>
+    dnac_verify: False
+    dnac_port: 443
+    dnac_version: 2.2.2.3
+    dnac_debug: False
+
+  tasks:
+  - name: Create site Altus
+    cisco.dnac.site_create:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      site:
+        area:
+          name: "Altus"
+          parentName: "Global/Costa Rica"
+      type: area
+
+  - name: Create building HQ
+    cisco.dnac.site_create:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      site:
+        building:
+          address: "C022, A077"
+          latitude: 9.7489
+          longitude: -83.7534
+          name: "HQ"
+          parentName: "Global/Costa Rica/Altus"
+      type: building 
+
+  - name: Create floor 4
+    cisco.dnac.site_create:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      site:
+        floor:
+          height: 100
+          length: 100
+          width: 20
+          rfModel: "Drywall Office Only"
+          name: "Floor4"
+          parentName: "Global/Costa Rica/Altus/HQ"
+      type: floor
+
+  - name: Get all Site
+    cisco.dnac.site_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+    register: sites
+
+
+  - name: Print all sites
+    ansible.builtin.debug:
+      var: sites
