@@ -1,0 +1,80 @@
+- name: Path Trace Example
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    dnac_host: <IP/FQDN>
+    dnac_username: <username>
+    dnac_password: <password>
+    dnac_verify: False
+    dnac_port: 443
+    dnac_version: 2.2.2.3
+    dnac_debug: True
+
+  tasks:
+  - name: Get Network Device Filtered by Hostname
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      hostname: 
+        - "ISR-4K--Branch-SFO" # CHANGE ME
+    register: network_devices_by_hostname
+
+  - name: Get Network Device Filtered by Hostname
+    cisco.dnac.network_device_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      hostname: 
+        - "C9K-Branch-SFO.clus-demo.com" # CHANGE ME
+    register: network_devices_by_hostname_2
+
+  - name: Create path trace
+    cisco.dnac.path_trace:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      sourceIP: "{{network_devices_by_hostname.dnac_response.response[0].managementIpAddress}}"
+      destIP: "{{network_devices_by_hostname_2.dnac_response.response[0].managementIpAddress}}"
+      inclusions:
+        - INTERFACE-STATS
+        - DEVICE-STATS
+        - ACL-TRACE
+        - QOS-STATS
+      protocol: icmp
+      flowAnalysisId: ""
+    register: path_trace_task
+
+  - name: Sleep for 60 seconds and continue with play
+    wait_for:
+      timeout: 60
+    delegate_to: localhost
+
+  - name: Get Path Trace
+    cisco.dnac.path_trace_info:
+      dnac_host: "{{dnac_host}}"
+      dnac_username: "{{dnac_username}}"
+      dnac_password: "{{dnac_password}}"
+      dnac_verify: "{{dnac_verify}}"
+      dnac_port: "{{dnac_port}}"
+      dnac_version: "{{dnac_version}}"
+      dnac_debug: "{{dnac_debug}}"
+      flowAnalysisId: "{{path_trace_task.dnac_response.response.flowAnalysisId}}"
+    register: path_trace
+
+  - name: Print Path Trace
+    ansible.builtin.debug:
+      var: path_trace
