@@ -1,0 +1,77 @@
+- name: Software Image Management Example
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    dnac_host: 192.168.196.2
+    dnac_username: altus
+    dnac_password: Altus123
+    dnac_verify: False
+    dnac_port: 443
+    dnac_version: 2.2.2.3
+    dnac_debug: True
+    image_url: http://10.104.49.64/cat3k_caa_universalk9.16.12.03a.SPA.bin
+
+  tasks:
+    - name: Import Image from URL
+      cisco.dnac.swim_import_via_url:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+        payload:
+          - sourceURL: "{{image_url}}"
+
+    - name: Pause until image is imported
+      ansible.builtin.pause:
+        seconds: 30
+
+    - name: Get all Swim Image Details
+      cisco.dnac.swim_image_details_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+        family: cat3k
+      register: software_images
+
+    - name: Print software software images
+      ansible.builtin.debug:
+        var: software_images
+
+    - name: Get all Network Device
+      cisco.dnac.network_device_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+        hostname:
+          - CAT3K-03.devnet.local
+      register: network_devices
+
+    - name: Print software network devices
+      ansible.builtin.debug:
+        var: network_devices
+
+    - name: Trigger image distribution and activation
+      cisco.dnac.swim_trigger_activation:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+        payload:
+          - imageUuid: "{{software_images.dnac_response.response[0].imageUuid}}"
+            deviceUuid: "{{network_devices.dnac_response.response[0].id}}"
+            distributeIfNeeded: yes
