@@ -1,0 +1,112 @@
+- name: Discovery example
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+      dnac_host: <IP/FQDN>
+      dnac_username: <USERNAME>
+      dnac_password: <PASSWORD>
+      dnac_verify: False
+      dnac_port: 443
+      dnac_version: 2.2.2.3
+      dnac_debug: False
+
+  tasks:
+      - name: Get Global Credentials
+        cisco.dnac.global_credential_info:
+            dnac_host: "{{dnac_host}}"
+            dnac_username: "{{dnac_username}}"
+            dnac_password: "{{dnac_password}}"
+            dnac_verify: "{{dnac_verify}}"
+            dnac_port: "{{dnac_port}}"
+            dnac_version: "{{dnac_version}}"
+            dnac_debug: "{{dnac_debug}}"
+            credentialSubType: "CLI"
+        register: credentials
+
+      - name: Create discovery
+        cisco.dnac.discovery:
+            dnac_host: "{{dnac_host}}"
+            dnac_username: "{{dnac_username}}"
+            dnac_password: "{{dnac_password}}"
+            dnac_verify: "{{dnac_verify}}"
+            dnac_port: "{{dnac_port}}"
+            dnac_version: "{{dnac_version}}"
+            dnac_debug: "{{dnac_debug}}"
+            state: present
+            name: "Discovery-Guide"
+            discoveryType: Range
+            globalCredentialIdList:
+                - "{{credentials.dnac_response.response[0].id}}"
+            ipAddressList: "10.255.3.11-10.255.3.19"
+            timeOut: 5
+            retryCount: 3
+            protocolOrder: "ssh"
+            isAutoCdp: false
+        register: discovery_task
+
+      - name: Pause for 10 seconds for discovery to be created
+        pause:
+            seconds: 10
+
+      - name: Get Task by id
+        cisco.dnac.task_info:
+            dnac_host: "{{dnac_host}}"
+            dnac_username: "{{dnac_username}}"
+            dnac_password: "{{dnac_password}}"
+            dnac_verify: "{{dnac_verify}}"
+            dnac_port: "{{dnac_port}}"
+            dnac_version: "{{dnac_version}}"
+            dnac_debug: "{{dnac_debug}}"
+            taskId: "{{discovery_task.dnac_response.response.taskId}}"
+        register: discovery_progress
+
+      - name: Print discovery progress
+        debug:
+            var: discovery_progress
+
+      - name: Pause for 60 seconds for discovery to end
+        pause:
+            seconds: 60
+
+      - name: Get all Discovery Device
+        cisco.dnac.discovery_device_info:
+            dnac_host: "{{dnac_host}}"
+            dnac_username: "{{dnac_username}}"
+            dnac_password: "{{dnac_password}}"
+            dnac_verify: "{{dnac_verify}}"
+            dnac_port: "{{dnac_port}}"
+            dnac_version: "{{dnac_version}}"
+            dnac_debug: "{{dnac_debug}}"
+            id: "{{discovery_progress.dnac_response.response.progress}}"
+        register: discovery_devices
+
+      - name: Get Global Site
+        cisco.dnac.site_info:
+            dnac_host: "{{dnac_host}}"
+            dnac_username: "{{dnac_username}}"
+            dnac_password: "{{dnac_password}}"
+            dnac_verify: "{{dnac_verify}}"
+            dnac_port: "{{dnac_port}}"
+            dnac_version: "{{dnac_version}}"
+            dnac_debug: "{{dnac_debug}}"
+            name: Global
+        register: global_site
+
+      - name: Print discovery progress
+        debug:
+            var: discovery_devices
+
+      - name: Assign Discovered Devices to Site
+        cisco.dnac.site_assign_device:
+            dnac_host: "{{dnac_host}}"
+            dnac_username: "{{dnac_username}}"
+            dnac_password: "{{dnac_password}}"
+            dnac_verify: "{{dnac_verify}}"
+            dnac_port: "{{dnac_port}}"
+            dnac_version: "{{dnac_version}}"
+            dnac_debug: "{{dnac_debug}}"
+            device:
+                - ip: "{{item.managementIpAddress}}"
+            siteId: "{{global_site.dnac_response.response[0].id}}"
+        with_items: discovery_devices.dnac_response.response
