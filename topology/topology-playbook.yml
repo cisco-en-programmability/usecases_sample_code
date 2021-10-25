@@ -3,58 +3,57 @@
   connection: local
   gather_facts: false
   vars:
-    dnac_host: 192.168.196.2
-    dnac_username: altus
-    dnac_password: Altus123
+    dnac_host: <IP/FQDN>
+    dnac_username: <USERNAME>
+    dnac_password: <PASSWORD>
     dnac_verify: False
     dnac_port: 443
     dnac_version: 2.2.2.3
     dnac_debug: False
 
   tasks:
-  - name: Get all Topology Site
-    cisco.dnac.topology_site_info:
-      dnac_host: "{{dnac_host}}"
-      dnac_username: "{{dnac_username}}"
-      dnac_password: "{{dnac_password}}"
-      dnac_verify: "{{dnac_verify}}"
-      dnac_port: "{{dnac_port}}"
-      dnac_version: "{{dnac_version}}"
-      dnac_debug: "{{dnac_debug}}"
-    register: site_topology
+    - name: Get all Topology Site
+      cisco.dnac.topology_site_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+      register: site_topology
 
-  - name: Print Topology Site
-    ansible.builtin.debug:
-      var: site_topology
+    - name: Print Topology Site
+      ansible.builtin.debug:
+        var: site_topology
 
-  - name: Get all Topology Physical
-    cisco.dnac.topology_physical_info:
-      dnac_host: "{{dnac_host}}"
-      dnac_username: "{{dnac_username}}"
-      dnac_password: "{{dnac_password}}"
-      dnac_verify: "{{dnac_verify}}"
-      dnac_port: "{{dnac_port}}"
-      dnac_version: "{{dnac_version}}"
-      dnac_debug: "{{dnac_debug}}"
-    register: physical_topology
+    - name: Get all Topology Physical
+      cisco.dnac.topology_physical_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+      register: physical_topology
 
-  - name: Print Topology Site
-    ansible.builtin.debug:
-      var: physical_topology
+    - name: Print Topology Site
+      ansible.builtin.debug:
+        var: physical_topology
 
-  - name: Get Topology Layer 2 by id
-    cisco.dnac.topology_layer_2_info:
-      dnac_host: "{{dnac_host}}"
-      dnac_username: "{{dnac_username}}"
-      dnac_password: "{{dnac_password}}"
-      dnac_verify: "{{dnac_verify}}"
-      dnac_port: "{{dnac_port}}"
-      dnac_version: "{{dnac_version}}"
-      dnac_debug: "{{dnac_debug}}"
-      vlanID: 3001
-    register: l2_topology
+    - name: Get Topology Layer 2 by id
+      cisco.dnac.topology_layer_2_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+        vlanID: 3001
+      register: l2_topology
 
-  - name: Print Topology Site
-    ansible.builtin.debug:
-      var: l2_topology
-
+    - name: Print Topology Site
+      ansible.builtin.debug:
+        var: l2_topology
